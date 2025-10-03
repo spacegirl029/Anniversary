@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>💌 Love Jar 💌</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: linear-gradient(135deg, #fbeaff 0%, #d6eeff 100%);
+      font-family: 'Segoe UI', sans-serif;
+      color: #4d466b;
+      padding: 0;
+      margin: 0;
+      text-align: center;
+    }
+    h1 {
+      margin-top: 32px;
+      font-size: 2em;
+    }
+    .container {
+      margin: 40px auto;
+      background: rgba(255,255,255,0.8);
+      border-radius: 24px;
+      box-shadow: 0 6px 24px #cfc9e6;
+      max-width: 960px;
+      padding: 32px;
+      display: flex;
+      gap: 36px;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .jar-section {
+      flex: 1;
+      min-width: 350px;
+    }
+    .jar {
+      position: relative;
+      width: 320px;
+      height: 410px;
+      margin: 0 auto 24px;
+      background: linear-gradient(180deg, #f7f4ee 70%, #f1e6ff 100%);
+      border-radius: 55% 55% 60% 60% / 60% 60% 100% 100%;
+      box-shadow: 0 2px 12px #d3cde9;
+      overflow: hidden;
+      border: 2px solid #dcb5fa;
+    }
+    .note {
+      position: absolute;
+      width: 130px;
+      height: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px #e4e0f7;
+      font-size: 1em;
+      font-weight: 500;
+      transition: transform 0.3s cubic-bezier(.34,1.56,.64,1), opacity 0.3s;
+      cursor: pointer;
+      user-select: none;
+      z-index: 2;
+      border: 1.5px solid #dcb5fa;
+      opacity: 1;
+    }
+    .note.purple { background: #e4dbff; color: #7358ae; border-color: #b995f8;}
+    .note.blue   { background: #daf4ff; color: #458fd2; border-color: #8bd2f4;}
+    .note.pink   { background: #ffe3f3; color: #ee629d; border-color: #ffbce7;}
+    .note.yellow { background: #fff1cb; color: #e8aa1b; border-color: #ffd46e;}
+    .note.green  { background: #d9fad7; color: #24b270; border-color: #8de39c;}
+    .note.picked {
+      opacity: 0.3;
+      pointer-events: none;
+      text-decoration: line-through;
+    }
+    .buttons {
+      margin: 20px auto 16px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .btn {
+      background: #fae5ff;
+      color: #7c57b8;
+      font-weight: 500;
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 1px 6px #cfbee8;
+      padding: 11px 20px;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+    .btn:hover {
+      background: #e2cfff;
+      box-shadow: 0 0 12px #e7dcff;
+    }
+    .btn.purple { background: #e4dbff; color: #7358ae; border-color: #b995f8;}
+    .btn.blue { background: #daf4ff; color: #458fd2; border-color: #8bd2f4;}
+    .btn.pink { background: #ffe3f3; color: #ee629d; border-color: #ffbce7;}
+    .btn.yellow { background: #fff1cb; color: #e8aa1b; border-color: #ffd46e;}
+    .btn.green { background: #d9fad7; color: #24b270; border-color: #8de39c;}
+    .btn.shuffle { background: #eff0ff; color: #5d4a96;}
+    .btn.reset { background: #fbe6ef; color: #5d4a96;}
+    .picked-section {
+      flex: 1;
+      min-width: 260px;
+      margin-top: 0;
+      background: rgba(250,225,255,0.25);
+      border-radius: 22px;
+      box-shadow: 0 1px 8px #e9d7ed;
+      padding: 18px 20px 1px 20px;
+    }
+    .picked-section h2 {
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 1.3em;
+      color: #7358ae;
+      letter-spacing: 0.02em;
+    }
+    .picked-list {
+      text-align: left;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      max-height: 345px;
+      overflow-y: auto;
+    }
+    .picked-item {
+      padding: 9px 8px;
+      margin-bottom: 9px;
+      border-radius: 8px;
+      font-size: 1em;
+      background: #f4f3fc;
+      box-shadow: 0 0 6px #e4e0f7;
+      font-weight: 500;
+      border-left: 5px solid #c3bef7;
+      transition: background 0.2s;
+    }
+    .picked-item.purple { border-color: #b995f8;}
+    .picked-item.blue   { border-color: #8bd2f4;}
+    .picked-item.pink   { border-color: #ffbce7;}
+    .picked-item.yellow { border-color: #ffd46e;}
+    .picked-item.green  { border-color: #8de39c;}
+    .limit-info {
+      font-size: 1em;
+      margin: 13px 0 3px 0;
+      color: #ac8ae2;
+    }
+    .date-special {
+      color: #db78cc;
+      font-size: 1em;
+      margin-top: 4px;
+    }
+    /* Confetti styles */
+    .confetti-piece {
+      position: fixed;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      opacity: 0.82;
+      pointer-events: none;
+      z-index: 9999;
+      animation: confetti-fall 1.2s linear forwards;
+    }
+    @keyframes confetti-fall {
+      to {
+        transform: translateY(700px) rotate(420deg);
+        opacity: 0.33;
+      }
+    }
+    @media (max-width: 650px) {
+      .container {flex-direction: column;}
+      .jar-section, .picked-section {min-width: 90vw;}
+      .jar {width: 90vw;}
+    }
+/* Modal styles */
+#noteModal {
+  position: fixed;
+  top: 0; left: 0; right:0; bottom:0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 99999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#noteModalOverlay {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(230,210,250,0.51);
+  left: 0; top: 0; right:0; bottom:0;
+  z-index: 0;
+}
+.modal-box {
+  position: relative;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 28px #d3cde9;
+  border: 2.5px solid #dcb5fa;
+  max-width: 370px;
+  min-width: 270px;
+  padding: 30px 22px 19px 22px;
+  text-align: center;
+  z-index: 2;
+  animation: modal-pop 0.22s cubic-bezier(.3,2,.6,1);
+}
+@keyframes modal-pop {
+  0% { transform:scale(0.7); opacity: 0; }
+  90% { transform: scale(1.05); opacity: 1; }
+  100% { transform:scale(1); }
+}
+.modal-btn {
+  margin-top: 17px;
+  width: 90px;
+  background: #e6d2fa;
+  color: #7358ae;
+}
+#noteModalHeading {
+  font-size: 1.18em;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #7358ae;
+}
+#noteModalText {
+  font-size: 1em;
+  color: #5d4a96;
+}
+  </style>
+</head>
+<body>
+  <h1>💌 Love Jar 💌 <span style="font-size:0.8em;"></span></h1>
+  <div class="date-special">Happy Anniversary! I love you so much!!!</div>
+  <div class="container">
+    <div class="jar-section">
+      <div class="limit-info" id="limitInfo">Opened today: 0/3</div>
+      <div class="jar" id="jar"></div>
+      <div class="buttons">
+        <button class="btn purple" onclick="pickByColor('purple')">Pick Purple 💜</button>
+        <button class="btn blue" onclick="pickByColor('blue')">Pick Blue 💙</button>
+        <button class="btn pink" onclick="pickByColor('pink')">Pick Pink 💖</button>
+        <button class="btn yellow" onclick="pickByColor('yellow')">Pick Yellow 💛</button>
+        <button class="btn green" onclick="pickByColor('green')">Pick Green 💚</button>
+        <button class="btn shuffle" onclick="shuffleNotes()">Shuffle Notes 🔀</button>
+        <button class="btn reset" onclick="resetJar()" hidden>Reset Jar 💫</button>	
+      </div>
+    </div>
+    <div class="picked-section">
+      <h2>Picked Notes</h2>
+      <ul class="picked-list" id="pickedList"></ul>
+    </div>
+  </div>
+  <div style="font-size:1.15em;margin:14px;color:#af7acb;">hehehehe <3</div>
+  <script>
+    /* ==== DATA ==== */
+    const notesData = [
+      // Purple
+      ...[
+        "I can do all things through Christ who strengthens me – Philippians 4:13",
+        "The Lord is close to the brokenhearted – Psalm 34:18",
+        "Be strong and courageous, do not be afraid – Joshua 1:9",
+        "Cast all your anxiety on Him because He cares for you – 1 Peter 5:7",
+        "The Lord is my shepherd, I lack nothing – Psalm 23:1",
+        "When I am afraid, I put my trust in You – Psalm 56:3",
+        "For God has not given us a spirit of fear, but of power and love – 2 Timothy 1:7",
+        "The joy of the Lord is my strength – Nehemiah 8:10",
+        "Come to me, all who are weary, and I will give you rest – Matthew 11:28",
+        "The steadfast love of the Lord never ceases – Lamentations 3:22",
+        "The Lord will fight for you, you need only to be still – Exodus 14:14",
+        "God is our refuge and strength, a very present help in trouble – Psalm 46:1",
+        "For I know the plans I have for you – Jeremiah 29:11",
+        "Do not let your hearts be troubled, trust in God – John 14:1",
+        "My grace is sufficient for you – 2 Corinthians 12:9",
+        "He heals the brokenhearted and binds up their wounds – Psalm 147:3",
+        "Fear not, for I am with you – Isaiah 41:10",
+        "The light shines in the darkness, and the darkness has not overcome it – John 1:5",
+        "Blessed are those who mourn, for they shall be comforted – Matthew 5:4",
+        "Be still, and know that I am God – Psalm 46:10",
+        "The Lord is good, a refuge in times of trouble – Nahum 1:7",
+        "The Lord is my light and salvation, whom shall I fear – Psalm 27:1",
+        "He gives strength to the weary and increases the power of the weak – Isaiah 40:29",
+        "Do not worry about tomorrow – Matthew 6:34",
+        "The peace of God, which surpasses all understanding, will guard your hearts – Philippians 4:7",
+        "Those who hope in the Lord will renew their strength – Isaiah 40:31",
+        "God is love – 1 John 4:8",
+        "The Lord your God is with you, He is mighty to save – Zephaniah 3:17",
+        "The Lord bless you and keep you – Numbers 6:24",
+        "Trust in the Lord with all your heart – Proverbs 3:5",
+        "The Lord is faithful, and He will strengthen you – 2 Thessalonians 3:3",
+        "For the Lord is good; His mercy is everlasting – Psalm 100:5",
+        "The Lord upholds all who fall – Psalm 145:14",
+        "He will never leave you nor forsake you – Deuteronomy 31:6",
+        "You are fearfully and wonderfully made – Psalm 139:14",
+        "In this world you will have trouble, but take heart, I have overcome the world – John 16:33",
+        "The Lord is compassionate and gracious, slow to anger and abounding in love – Psalm 103:8",
+        "Faith is confidence in what we hope for and assurance about what we do not see – Hebrews 11:1",
+        "The Lord is my strength and my shield – Psalm 28:7",
+        "The grass withers, the flower fades, but the word of our God stands forever – Isaiah 40:8",
+        "Blessed is the one who trusts in the Lord – Jeremiah 17:7",
+        "God will supply every need of yours – Philippians 4:19",
+        "The Lord surrounds His people both now and forevermore – Psalm 125:2",
+        "The Lord is righteous in all His ways – Psalm 145:17",
+        "Blessed are the pure in heart, for they shall see God – Matthew 5:8",
+        "We love because He first loved us – 1 John 4:19",
+        "The Lord is merciful and gracious – Psalm 103:8",
+        "God is within her, she will not fall – Psalm 46:5",
+        "Let all that you do be done in love – 1 Corinthians 16:14",
+        "The name of the Lord is a strong tower – Proverbs 18:10",
+        "The Lord will keep you from all harm – Psalm 121:7",
+        "His mercies are new every morning – Lamentations 3:23",
+        "For we walk by faith, not by sight – 2 Corinthians 5:7",
+        "If God is for us, who can be against us – Romans 8:31",
+        "The Lord delights in those who fear Him – Psalm 147:11",
+        "My presence will go with you, and I will give you rest – Exodus 33:14",
+        "For the word of the Lord is right and true – Psalm 33:4",
+        "The Lord your God goes with you, He will never leave you – Deuteronomy 31:8",
+        "Rejoice in hope, be patient in tribulation, be constant in prayer – Romans 12:12",
+        "God is not a God of confusion but of peace – 1 Corinthians 14:33",
+        "The Lord is good to those who wait for Him – Lamentations 3:25",
+        "God is able to bless you abundantly – 2 Corinthians 9:8",
+        "The Lord is slow to anger but great in power – Nahum 1:3",
+        "He will wipe away every tear from their eyes – Revelation 21:4",
+        "For the Lord your God will be with you wherever you go – Joshua 1:9",
+        "The Lord is near to all who call on Him – Psalm 145:18",
+        "Taste and see that the Lord is good – Psalm 34:8",
+        "The Lord watches over you, the Lord is your shade at your right hand – Psalm 121:5",
+        "You will seek me and find me when you seek me with all your heart – Jeremiah 29:13",
+        "Let everything that has breath praise the Lord – Psalm 150:6",
+        "The Lord is gracious and full of compassion – Psalm 145:8",
+        "And surely I am with you always, to the very end of the age – Matthew 28:20",
+        "The Lord reigns, let the earth be glad – Psalm 97:1"
+      ].map(msg => ({text: msg, color: "purple", heading: "With Love, Jesus"})),
+      // Blue
+      ...[
+        "Read a book together","Create a recipe together","Learn a new language","Go vegan for one month",
+        "Learn to meditate","Go cafe hopping","Learn how to play an instrument","Host a dinner party",
+        "See a comedy show","Invent our own board game","Paint portraits of each other","Host a game night",
+        "Go to a drive-in movie theater","Try new cuisines","Complete a puzzle","Clay date",
+        "Take a road trip","Travel to our favorite countries","Write a song together","Write each other a love letter (hehe)",
+        "Watch the sunrise/sunset together","Dance in the rain","Go scuba diving","Camp under the stars",
+        "Go hiking","Sail on a cruise/boat","Go to church together","Go horse riding","Make a memory book",
+        "Sit on a roller coasted ride","Enjoy a lazy weekend","Sleep for 24 hours","Ice skating",
+        "'Just Dance' on a Friday night","Build a fort with blankets and pillows","Volunteer together for a good cause.",
+        "Make a time capsule","Candle light dinner","DIY spa day at home","Build a Lego set"
+      ].map(msg => ({text: msg, color: "blue", heading: "Future Bucket List"})),
+      // Pink
+      ...[
+        "Hey handsome, are you made of copper and tellurium? Because you’re Cu-Te!","Do you have a map? Because I just got lost in you.",
+        "If you were a vegetable, you’d be a cute-cumber!","Are you an alien? Because you’ve just abducted my heart.",
+        "Is your name Google? Because you have everything I’ve been searching for.","Do you have a Band-Aid? Because I just scraped my knee falling for you.",
+        "Are you made of sugar? Cause you’re too sweet to handle!","Can I follow you home? Because my app said that was a shortcut to my heart.",
+        "You’re like a dictionary… you add meaning to my life!","Excuse me, but I think you dropped something: my jaw!",
+        "If kisses were snowflakes, I’d send you a blizzard.","If I were a cat, I’d spend all 9 lives with you.",
+        "Are you a time traveler? Because I see you in my future.","I must be a rain because I’ve fallen for you.",
+        "Do you have a pencil? Because I want to erase your past and write our future.","Are you Wi-Fi? Because I’m feeling a connection.",
+        "If being cute and silly were a crime, you’d be serving a life sentence.","You’re the cheese to my macaroni.",
+        "Our love is like a fine wine; it gets better with age.","You are the reason why I smile on bad days.",
+        "Ever since I met you, nobody else is worth thinking about.","You light up my world like nobody else.",
+        "You are my happy place.","You stole my heart, but I’ll let you keep it.",
+        "Love is like a fart. If you have to force it, it’s probably crap. (that's why our farts are natural)",
+        "You and me, we’re like a really small gang.","You must be made of glue, because I’m totally stuck on you.",
+        "If I had a star for every time you made me smile, I’d have a multiverse of galaxies.",
+        "When in doubt, just remember I love you more than chocolate.","You’re the peanut butter to my jelly.",
+        "Thinking of you is like inhaling a breath of fresh air with a bit of laughing gas.",
+        "You’re the reason I check my phone every two minutes.","Guess what? I love you more than pizza!",
+        "I love you more than my flower blanket.","You are my favorite part of the day.",
+        "I’d rather do nothing with you than something with anyone else.","Surprise! I’m thinking about you… again.",
+        "Just a little reminder that you’re amazing.","I'm probably missing you a lot right now.(ask me if i am lol)",
+        "If the world had no gravity, I’d still fall for you!","You make everything better just by being there.",
+        "You’re my favorite notification.","Just so you know, I’m crazy about you.",
+        "Just wanted to point out that I’m missing you again.","You make my heart do a little happy dance.",
+        "Your friendship means the world to me, and my heart is full of gratitude for you.",
+        "I value every moment shared with you.","In you, I’ve found a friendship that will last a lifetime.",
+        "If you were a triangle, you'd be acute one.","Do you have a name or can I call you mine?",
+        "If we were socks, we'd make a great pair.","Thank you for being my rock and always supporting me through thick and thin.",
+        "Being with you feels like coming home to a place I’ve never been.",
+        "Miles may separate us, but my love for you only grows stronger with the distance.",
+        "I am yours, don’t give myself back to me.","Your love is my constant comfort and my greatest happiness.",
+        "Every love story is beautiful, but ours is my favorite.","I wish I was holding your hand.",
+        "I want to grow old with you.","I am so lucky to have you in my life.",
+        "I cherish our late night talks."
+      ].map(msg => ({text: msg, color: "pink", heading: "i <3 u"})),
+      // Yellow
+      ...[
+        "You Are Enough","Believe You Can","Follow Your Heart","Dream Big Dreams","Know Your Worth","Make It Happen",
+        "Trust Your Instinct","Just Be You","Live Fearlessly Everyday","Own Your Story","Rise Above It","You're Worth It",
+        "Courage Over Fear","You Got This","Never Doubt Yourself","Confidence Creates Magic","Never Give Up",
+        "Stay The Course","Pain Is Temporary","Never Lose Hope","Love Conquers All","Love Your Life","Love Heals Everything",
+        "You Are Loved","Just Do It","Make It Count","Now Or Never","Never Look Back","Find Your Fire","Seize The Day",
+        "Create Your Future","Win From Within","Live Fully Now","Raise Your Standards","Prove Them Wrong","Always Stay Positive",
+        "All Is Well","Seek Inner Silence","Clear The Clutter","Let it go","I Am Here","You're My Everything","Trust Your Instinct",
+        "Give Yourself Time"
+      ].map(msg => ({text: msg, color: "yellow", heading: "3 Word Affirmations"})),
+      // Green
+      ...[
+        "What did one hat say to the other? You stay here. I'll go on ahead.",
+        "Where do pirates get their hooks? Secondhand stores.",
+        "Knock knock. Who's there? Boo. Boo who? Don't cry, I'm only joking!",
+        "What did the pirate say when he turned 80? Aye matey.",
+        "What do you call two birds in love? Tweethearts!",
+        "Why did the picture go to jail? Because it was framed.",
+        "I went to buy some camo pants but couldn’t find any.",
+        "Knock knock. Who's there? Adore. Adore who? Adore is between us, so please open up.",
+        "How do you organize a space party? You planet.",
+        "How did the telephone propose to his girlfriend? He gave her a ring.",
+        "What do horses say when they fall? Help, I’ve fallen and I can’t giddy up.",
+        "If a parsley farmer gets sued, can they garnish his wages?",
+        "Knock knock. Who's there? Candice. Candice who? Candice joke get any worse?",
+        "I couldn't figure out why the baseball kept getting larger. Then it hit me.",
+        "What runs but never goes anywhere? A refrigerator.",
+        "What do you call a beehive without an exit? Unbelievable.",
+        "6:30 is the best time on a clock, hands down.",
+        "Which is faster, hot or cold? Hot, because you can catch a cold.",
+        "What did the tomato say to the other tomato during a race? Ketchup.",
+        "Why can’t you trust duck doctors? They’re all quacks.",
+        "Knock, knock. Who’s there? Wooden shoe. Wooden shoe who? Wooden shoe like to hear another joke?",
+        "What do you call a ghost's sweetheart? A ghoul-friend.",
+        "Why can't a leopard hide? Because he's always spotted.",
+        "The rotation of Earth really makes my day.",
+        "A termite walks into the bar and asks, ”Is the bar tender here?”",
+        "Why are the Irish so wealthy? Because their capital is always Dublin.",
+        "Knock, knock. Who’s there? Cher. Cher who? Cher would be nice if you opened the door.",
+        "What do you call an alligator detective? An investi-gator.",
+        "If at first you don't succeed, then skydiving isn't for you.",
+        "How do you stop a bull from charging? Cancel its credit card.",
+        "I always wanted to be a doctor, but I didn't have the patients.",
+        "Knock, knock. Who’s there? Woo. Woo who? What are you so excited about?",
+        "I was going to tell a time-traveling joke, but you didn't like it.",
+        "I buy all my guns from a guy called T-Rex. He’s a small arms dealer.",
+        "Why is the mushroom always invited to parties? He's a fungi.",
+        "I'm on a seafood diet: When I see food, I eat it.",
+        "What did the full glass say to the empty glass? You look drunk.",
+        "What did the snail riding on the turtle's back say? Wheeeeee!",
+        "Why are skeletons so calm? Because nothing gets under their skin.",
+        "Did you hear the rumor about butter? Well, I'm not going to go spreading it!",
+        "Why don't sharks eat clowns? Because they taste funny.",
+        "Where do cows go on Friday nights? To the moo-vies.",
+        "Why don't lobsters like to share? They're shellfish.",
+        "Why don’t eggs tell jokes? They’d crack each other up.",
+        "What do you call a shoe made from a banana? A slipper.",
+        "Knock, knock. Who’s there? Banana. Banana who? Knock, knock. Who’s there? Banana. Banana who? Knock, knock. Who’s there? Orange. Orange who? Orange you glad I didn’t say banana?",
+        "What do you get from a pampered cow? Spoiled milk.",
+        "What do you call a bee that can't make up its mind? A Maybe.",
+        "What do you call a bear without any teeth? A gummy bear.",
+        "What's a ninja's favorite type of shoes? Sneakers.",
+        "What did the two pieces of bread say on their wedding day? It was loaf at first sight.",
+        "What do dentists call their x-rays? Tooth pics.",
+        "The future, the present, and the past walk into a bar. Things got a little tense.",
+        "What happens when a snowman throws a tantrum? He has a meltdown.",
+        "What do elves learn in school? The elf-abet.",
+        "What happens when frogs park illegally? They get toad.",
+        "I used to think I was indecisive. But now I’m not so sure.",
+        "Wanna hear a joke about paper? Never mind, it's tearable.",
+        "What kind of shoes does a lazy person wear? Loafers.",
+        "How do you open a banana? With a mon-key.",
+        "How do you make a water bed bouncier? Add spring water.",
+        "Why did the robber jump in the shower? He wanted to make a clean getaway.",
+        "I can’t believe I got fired from the calendar factory. All I did was take a day off.",
+        "Why was the broom late to class? It over-swept.",
+        "What did the buffalo say when his kid went to college? Bison.",
+        "What did the mayonnaise say when the refrigerator door was opened? Close the door, I'm dressing.",
+        "Why do pancakes always win at baseball? They have the best batter.",
+        "I tried to catch fog yesterday. Mist.",
+        "Why did the student eat his homework? Because his teacher said it was a piece of cake."
+      ].map(msg => ({text: msg, color: "green", heading: "Lame internet jokes"}))
+    ];
+    /* ==== END DATA ==== */
+
+    // Set up per-day opening limit
+    const DAILY_LIMIT = 3;
+    // Random position presets for the jar layout
+    const layoutPositions = [
+      {top: 40, left: 25},{top: 71, left: 140},{top: 112, left: 68},{top: 154, left: 180},{top: 201, left: 86},
+      {top: 65, left: 226},{top: 182, left: 195},{top: 95, left: 70},{top: 55, left: 220},{top: 215, left: 162},
+      {top: 32, left: 75},{top: 228, left: 117},{top: 110, left: 214},{top: 190, left: 46},{top: 151, left: 102},
+      {top: 270, left: 104},{top: 62, left: 44},{top: 254, left: 171},{top: 128, left: 24},{top: 290, left: 192},
+      {top: 125, left: 123},{top: 225, left: 40},{top: 285, left: 64},{top: 185, left: 122},{top: 72, left: 169},
+      {top: 260, left: 48},{top: 68, left: 99},{top: 160, left: 210},{top: 300, left: 75},{top: 120, left: 181}
+    ];
+    let notes = [];
+    let pickedNotes = [];
+    let openedToday = 0;
+    let todaysDate = new Date().toLocaleDateString();
+
+    function randomPositionsForJar(count) {
+      let arr = [];
+      for (let i = 0; i < count; i++) {
+        arr.push(layoutPositions[i % layoutPositions.length]);
+      }
+      // Slight randomization for variety
+      return arr.map(pos => ({top: pos.top + Math.random()*14 - 7, left: pos.left + Math.random()*14 - 7}));
+    }
+
+    function shuffleArray(arr) {
+      let a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function loadState() {
+      // Try localStorage for persistence (so the jar restores after reload)
+      const storedDate = localStorage.getItem('lovejar-date');
+      if (storedDate === todaysDate) {
+        openedToday = parseInt(localStorage.getItem('lovejar-opened') || '0');
+      } else {
+        openedToday = 0;
+        localStorage.setItem('lovejar-date', todaysDate);
+        localStorage.setItem('lovejar-opened', '0');
+        localStorage.setItem('lovejar-picked', JSON.stringify([]));
+      }
+      // Get picked notes
+      pickedNotes = JSON.parse(localStorage.getItem('lovejar-picked') || '[]');
+      // Remove picked notes from master list
+      notes = shuffleArray(notesData).filter(n => !pickedNotes.find(p => p.text === n.text));
+    }
+
+    function savePickedNotes() {
+      localStorage.setItem('lovejar-picked', JSON.stringify(pickedNotes));
+    }
+
+    function renderJar() {
+      const jar = document.getElementById('jar');
+      jar.innerHTML = '';
+      let pos = randomPositionsForJar(notes.length);
+      for (let i = 0; i < notes.length; i++) {
+        let n = notes[i];
+        jar.innerHTML += `<div class="note ${n.color}" style="top:${pos[i].top}px;left:${pos[i].left}px;" onclick="pickNote(${i})">
+        ${capitalize(n.color)} Note
+        </div>`;
+      }
+    }
+
+    function renderPicked() {
+      const list = document.getElementById('pickedList');
+      list.innerHTML = '';
+      pickedNotes.slice().reverse().forEach(n => {
+      list.innerHTML += `<li class="picked-item ${n.color}">
+  <strong>${capitalize(n.color)}: ${n.heading}</strong><br>
+  ${escapeHTML(n.text)}
+  <br>
+  <span style="font-size:0.93em;color:#9685b9;">
+    Picked: ${n.pickedAt ? new Date(n.pickedAt).toLocaleString() : ""}
+  </span>
+</li>`;
+      });
+    }
+
+    function updateLimitInfo() {
+      document.getElementById('limitInfo').innerText = `Opened today: ${openedToday}/${DAILY_LIMIT}`;
+    }
+
+    function pickNote(i) {
+      if (openedToday >= DAILY_LIMIT) {
+        alert("Limit reached for today! Come back tomorrow ❤️");
+        return;
+      }
+      // Pick note, add to pickedNotes, update jar
+      let n = notes[i];
+      openedToday++;
+      n.pickedAt = new Date();
+      pickedNotes.push(n);
+      savePickedNotes();
+      notes.splice(i, 1);
+      renderJar();
+      renderPicked();
+      updateLimitInfo();
+      localStorage.setItem('lovejar-date', todaysDate);
+      localStorage.setItem('lovejar-opened', openedToday.toString());
+      showConfetti(n.color);
+      // Show dialog for picked note
+    setTimeout(() => {
+    showNoteModal(n);
+    }, 420);
+    }
+
+    function pickByColor(color) {
+      // Only pick from available notes of that color
+      if (openedToday >= DAILY_LIMIT) {
+        alert("Limit reached for today! Come back tomorrow ❤️");
+        return;
+      }
+      let colorNotes = notes.filter(n => n.color === color);
+      if (colorNotes.length === 0) {
+        alert("No more notes left in " + capitalize(color) + " group!");
+        return;
+      }
+      let pickIdx = notes.indexOf(colorNotes[Math.floor(Math.random()*colorNotes.length)]);
+      pickNote(pickIdx);
+    }
+
+    function shuffleNotes() {
+      notes = shuffleArray(notes);
+      renderJar();
+    }
+
+    function resetJar() {
+      if (!confirm("Are you sure you want to reset the jar and start fresh?")) return;
+      pickedNotes = [];
+      notes = shuffleArray(notesData);
+      openedToday = 0;
+      todaysDate = new Date().toLocaleDateString();
+      localStorage.setItem('lovejar-opened', '0');
+      localStorage.setItem('lovejar-date', todaysDate);
+      localStorage.setItem('lovejar-picked', JSON.stringify([]));
+      renderJar();
+      renderPicked();
+      updateLimitInfo();
+    }
+
+    function capitalize(x) { return x.charAt(0).toUpperCase() + x.slice(1);}
+    function escapeHTML(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    }
+
+    // Confetti animation
+    function showConfetti(mainColorGroup) {
+      const confColors = {
+        purple: ['#e2cfff','#dcb5fa','#b895f8','#7358ae'],
+        blue: ['#bfeaff','#8bd2f4','#458fd2','#daf4ff'],
+        pink: ['#ffd6ef','#ffbce7','#ee629d','#ffe3f3'],
+        yellow: ['#fff8d6','#ffd46e','#e8aa1b','#fff1cb'],
+        green: ['#cafadb','#8de39c','#24b270','#d9fad7']
+      };
+      for (let i = 0; i < 20; i++) {
+        let piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        let colors = confColors[mainColorGroup] || confColors.purple;
+        piece.style.background = colors[Math.floor(Math.random()*colors.length)];
+        piece.style.left = Math.random() * (window.innerWidth - 32) + 'px';
+        piece.style.top = (120 + Math.random()*80) + 'px';
+        piece.style.transform = 'rotate('+(Math.random()*360)+'deg)';
+        piece.style.animationDuration = (0.85 + Math.random()*0.7) + 's';
+        document.body.appendChild(piece);
+        setTimeout(() => { piece.remove(); }, 1200);
+      }
+    }
+
+    // Initial Load
+    window.onload = function() {
+      loadState();
+      renderJar();
+      renderPicked();
+      updateLimitInfo();
+    };
+function showNoteModal(n) {
+  document.getElementById('noteModalHeading').innerText = capitalize(n.color) + ": " + n.heading;
+  document.getElementById('noteModalText').innerText = n.text;
+  document.getElementById('noteModal').style.display = 'flex';
+}
+
+function closeNoteModal() {
+  document.getElementById('noteModal').style.display = 'none';
+}
+  </script>
+<!-- Note Popup Modal -->
+<div id="noteModal" style="display:none;">
+  <div id="noteModalOverlay"></div>
+  <div id="noteModalBox" class="modal-box">
+    <div id="noteModalHeading"></div>
+    <div id="noteModalText"></div>
+    <button onclick="closeNoteModal()" class="btn modal-btn">Close</button>
+  </div>
+</div>
+</body>
+</html>
